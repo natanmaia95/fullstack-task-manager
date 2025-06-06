@@ -1,0 +1,19 @@
+# Creating an npm project
+npm init -y
+(-y means Yes for all questions on setup)
+
+also edit package.json an add "type": "modules"
+
+# Adding modules we'll use
+npm install cors
+npm i express
+(i means install)
+
+# Add a script so we can run the program easier
+  "scripts": {
+    "start": "node --watch index.js"
+  },
+(--watch means it refreshes with file changes)
+now we can call
+    npm start
+to run the back end server.
