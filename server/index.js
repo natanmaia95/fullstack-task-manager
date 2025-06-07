@@ -73,6 +73,7 @@ taskList = [
 ];
 console.log(taskList);
 
+const MAX_LIST_SIZE = 16;
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -84,6 +85,18 @@ const app = express();
 app.use(cors());
 app.use(express.json()); //this parses body requests into json objects automatically
 
+
+//CREATE
+app.post('/tasks', (req, res) => {
+    try {
+        if (taskList.length >= MAX_LIST_SIZE) throw new Error("Task list already at max size.")
+        let factory = new TaskFactory();
+        taskList = [factory.getTask(), ...taskList];
+        res.status(200).json(factory.getTask());
+    } catch (err) {
+        res.json({error: err})
+    }
+});
 
 //READ
 app.get('/tasks', (req, res) => {
@@ -108,7 +121,16 @@ app.put('/tasks/:id', (req, res) => {
         console.log("error: ", err);
         throw new Error(err.message);
     }
-})
+});
+
+//DELETE
+app.delete('/tasks/:id', (req, res) => {
+    taskList = taskList.filter((task) => {
+        return task.id != req.params.id
+    });
+    res.status(200).json(taskList);
+    console.log("updated from delete\n", taskList);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
