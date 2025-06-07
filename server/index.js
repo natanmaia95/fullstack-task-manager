@@ -15,25 +15,43 @@ class TaskFactory {
         return this;
     }
 
-    fromObj(obj) {
+    static fromExistingTask(task) {
+        let factory = new TaskFactory;
+        factory.task = task;
+        return factory;
+    }
+
+    static fromUntestedObj(obj) {
+        let factory = new TaskFactory;
         if (obj["id"] != false) { //id is false when creating a new task, a string when recreating an existing one.
-            this.task["id"] = obj["id"];
+            factory.task["id"] = obj["id"];
         }
-        this.setText(obj["text"]);
-        this.setDone(obj["done"]);
-        this.setColor(obj["color"]);
+        factory.setText(obj["text"]);
+        factory.setDone(obj["done"]);
+        factory.setColor(obj["color"]);
+        return factory;
+    }
+
+    applyChanges(changes) {
+        if (changes.done) this.setDone(changes.done);
+        if (changes.text) this.setText(changes.text);
+        if (changes.color) this.setColor(changes.color);
+        return this;
     }
 
     setText(text) {
         this.task["text"] = text;
+        return this;
     }
 
     setDone(isDone) {
         this.task["done"] = isDone;
+        return this;
     }
 
     setColor(color) {
         this.task["color"] = color;
+        return this;
     }
 
     getTask() {
@@ -55,16 +73,36 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 //CORS means the backend *does* allow requests from other domains, although we allow just our front. 
-app.use(cors({
-    "origin": "https://nattaskmanager.vercel.app"
-}))
+// app.use(cors({
+    // "origin": "https://nattaskmanager.vercel.app"
+// }))
+app.use(cors());
+app.use(express.json()); //this parses body requests into json objects automatically
 
 
-
-//endpoints
+//READ
 app.get('/tasks', (req, res) => {
     res.json(taskList);
 });
+
+//UPDATE
+app.put('/tasks/:id', (req, res) => {
+    try {
+        const taskToUpdate = taskList.find(t => t.id === req.params.id);
+        if (!taskToUpdate) {
+            res.status(404).json({error: 'Couldn\'t find task with id: ' + req.params.id})
+        }
+
+        const factory = TaskFactory.fromExistingTask(taskToUpdate); //this creates a reference of the array element
+        factory.applyChanges(req.body); //this updates the array element directly
+
+        console.log("updated from put\n", taskList);
+        res.status(200).json(factory.getTask());
+    } catch (err) {
+        console.log("error: ", err);
+        throw new Error(err.message);
+    }
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
