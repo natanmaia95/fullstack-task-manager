@@ -9,7 +9,7 @@ let testTaskList = [
   { id: 'uuid3333', text: 'Deploy to Render and Vercel', done: false, 'color': 'white'},
 ];
 
-const BASE_SERVER_URL = 'http://localhost:3000'
+const BASE_SERVER_URL = process.env.BASE_SERVER_URL || 'http://localhost:3000';
 
 function App() {
   console.log("TodoApp rendering");
