@@ -43,9 +43,17 @@
   padding: 8pt;
   margin-top: 12pt;
   display: flex;
+  align-items: center;
 }
 
 .taskcard > label {
   flex: auto;
   margin-left: 8pt;
+  margin-right: 4pt;
+  height: fit-content;
+}
+
+.taskcard > button {
+  padding: 4pt;
+  margin-left: 4pt;
 }

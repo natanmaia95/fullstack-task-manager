@@ -18,6 +18,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+  
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -37,11 +39,12 @@ function App() {
     fetchTasks();
   }, []) //empty means run on-mount
 
-  let handleTaskDoneChanged = async (id, newDoneValue) => {
-    //update local first
+
+
+  let handleEditTask = async (id, changes) => {
     let oldTaskList = [...taskList];
     let tempList = taskList.map((task) =>
-      task.id === id ? { ...task, done: newDoneValue } : task
+      task.id === id ? { ...task, ...changes } : task
     )
     setTaskList([...tempList]);
     console.log(taskList);
@@ -50,7 +53,7 @@ function App() {
     try {
       const response = await fetch(BASE_SERVER_URL + `/tasks/${id}`, {
         method: 'PUT', headers: {'Content-Type' : 'application/json'},
-        body: JSON.stringify({done: newDoneValue})
+        body: JSON.stringify(changes)
       })
 
       if (!response.ok) {
@@ -62,6 +65,40 @@ function App() {
     }
   }
 
+  let handleTaskDoneChanged = async (id, newDoneValue) => {
+    let changes = {done: newDoneValue};
+    await handleEditTask(id, changes);
+  }
+
+  let handleDeleteTask = async (id) => {
+    //delete on server first, on local later.
+    try {
+      const response = await fetch(BASE_SERVER_URL + `/tasks/${id}`, {
+        method: 'DELETE', headers: {'Content-Type' : 'application/json'}
+      })
+      if (!response.ok) throw new Error(`HTTP error! status ${response.status}`);
+      //if no error, delete the task
+      setTaskList([...taskList.filter((task) => {return task.id !== id;})]);
+    } catch (err) {
+      setError("Failed to update task. Please try again.\n" + err.message);
+    }
+  }
+
+  let handleCreateTask = async () => {
+    try {
+      const response = await fetch(BASE_SERVER_URL + `/tasks`, {
+        method: 'POST', headers: {'Content-Type' : 'application/json'}
+      })
+      if (!response.ok) throw new Error(`HTTP error! status ${response.status}`);
+      //if no error, add the task
+      let newTask = await response.json();
+      console.log("new task: ", newTask);
+      setTaskList([newTask, ...taskList]);
+    } catch (err) {
+      setError("Failed to create task. Please try again.\n" + err.message);
+    }
+  }
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p>Error loading tasks: {error}</p>;
 
@@ -69,12 +106,13 @@ function App() {
     <>
       <h1>Task Manager</h1>
       <div className="card">
-
+        <button onClick={handleCreateTask}>Create Task</button>
 
         {taskList.map((taskIn) => {
           return <TaskCard 
             key={taskIn.id} task={taskIn}
             onDoneChanged={handleTaskDoneChanged}
+            onDelete={handleDeleteTask}
           />
         })}
       </div>
