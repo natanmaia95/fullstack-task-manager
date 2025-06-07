@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import TaskCard from './components/TaskCard';
+import EditTaskModal from './components/EditTaskModal';
 
 let testTaskList = [
   { id: 'uuid1111', text: 'Learn React', done: false, 'color': 'white' },
@@ -14,12 +15,14 @@ function App() {
   console.log("TodoApp rendering");
 
   const [taskList, setTaskList] = useState([...testTaskList]);
+  const [currentEditTask, setCurrentEditTask] = useState(null);
+  const editModalRef = useRef();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
 
-  
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -39,6 +42,13 @@ function App() {
     fetchTasks();
   }, []) //empty means run on-mount
 
+  useEffect(() => {
+    if (currentEditTask == null) {
+      if (editModalRef.current) editModalRef.current.close();
+    } else {
+      if (editModalRef.current) editModalRef.current.showModal();
+    }
+  }, [currentEditTask]);
 
 
   let handleEditTask = async (id, changes) => {
@@ -68,6 +78,12 @@ function App() {
   let handleTaskDoneChanged = async (id, newDoneValue) => {
     let changes = {done: newDoneValue};
     await handleEditTask(id, changes);
+  }
+
+  let handleTaskEditModalSaved = async (newTask) => {
+    let changes = {text: newTask.text, color: newTask.color}
+    await handleEditTask(newTask.id, changes);
+    setCurrentEditTask(null);
   }
 
   let handleDeleteTask = async (id) => {
@@ -112,10 +128,24 @@ function App() {
           return <TaskCard 
             key={taskIn.id} task={taskIn}
             onDoneChanged={handleTaskDoneChanged}
+            onPressEdit={(taskToEdit) => setCurrentEditTask({...taskToEdit})}
             onDelete={handleDeleteTask}
           />
         })}
+
+        {/* {currentEditTask == null ? null : (
+          <EditTaskModal
+          
+          />
+        )} */}
+        <EditTaskModal
+          ref={editModalRef}
+          task={currentEditTask}
+          onClose={() => setCurrentEditTask(null)}
+          onSave={(newTask) => handleTaskEditModalSaved(newTask)}
+        />
       </div>
+
 
     </>
   )
