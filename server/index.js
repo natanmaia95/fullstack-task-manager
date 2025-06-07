@@ -33,9 +33,9 @@ class TaskFactory {
     }
 
     applyChanges(changes) {
-        if (changes.done) this.setDone(changes.done);
-        if (changes.text) this.setText(changes.text);
-        if (changes.color) this.setColor(changes.color);
+        if (changes.done != null) this.setDone(changes.done);
+        if (changes.text != null) this.setText(changes.text);
+        if (changes.color != null) this.setColor(changes.color);
         return this;
     }
 
@@ -66,6 +66,11 @@ class TaskFactory {
 
 
 let taskList = [(new TaskFactory()).getTask()];
+taskList = [
+  { id: uuidv4(), text: 'Learn React Hooks', done: false, 'color': 'white' },
+  { id: uuidv4(), text: 'Build a Todo App', done: true, 'color': 'white'},
+  { id: uuidv4(), text: 'Deploy to Netlify', done: false, 'color': 'white'},
+];
 console.log(taskList);
 
 
@@ -88,6 +93,7 @@ app.get('/tasks', (req, res) => {
 //UPDATE
 app.put('/tasks/:id', (req, res) => {
     try {
+        console.log("body: ", req.body);
         const taskToUpdate = taskList.find(t => t.id === req.params.id);
         if (!taskToUpdate) {
             res.status(404).json({error: 'Couldn\'t find task with id: ' + req.params.id})
