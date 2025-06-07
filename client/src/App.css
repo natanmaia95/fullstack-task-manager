@@ -37,6 +37,15 @@
   padding: 2em;
 }
 
-.read-the-docs {
-  color: #888;
+.taskcard {
+  background-color: gray;
+  border-radius: 8pt;
+  padding: 8pt;
+  margin-top: 12pt;
+  display: flex;
+}
+
+.taskcard > label {
+  flex: auto;
+  margin-left: 8pt;
 }

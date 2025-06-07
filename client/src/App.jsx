@@ -3,17 +3,15 @@ import './App.css'
 import TaskCard from './components/TaskCard';
 
 let testTaskList = [
-  { id: 'uuid1111', text: 'Learn React Hooks', done: false, 'color': 'white' },
+  { id: 'uuid1111', text: 'Learn React', done: false, 'color': 'white' },
   { id: 'uuid2222', text: 'Build a Todo App', done: true, 'color': 'white'},
-  { id: 'uuid3333', text: 'Deploy to Netlify', done: false, 'color': 'white'},
+  { id: 'uuid3333', text: 'Deploy to Render and Vercel', done: false, 'color': 'white'},
 ];
 
 const BASE_SERVER_URL = 'http://localhost:3000'
 
 function App() {
   console.log("TodoApp rendering");
-  const [count, setCount] = useState(0)
-
 
   const [taskList, setTaskList] = useState([...testTaskList]);
 
@@ -39,11 +37,6 @@ function App() {
     fetchTasks();
   }, []) //empty means run on-mount
 
-  // let handleTaskDoneChanged = (taskIndex, newDoneValue) => {
-  //   let tempList = [...taskList];
-  //   tempList[taskIndex]["done"] = newDoneValue;
-  //   setTaskList(tempList);
-  // }
   let handleTaskDoneChanged = async (id, newDoneValue) => {
     //update local first
     let oldTaskList = [...taskList];
@@ -74,11 +67,9 @@ function App() {
 
   return (
     <>
-      <h1>Vite + React</h1>
+      <h1>Task Manager</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+
 
         {taskList.map((taskIn) => {
           return <TaskCard 
