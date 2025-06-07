@@ -94,7 +94,7 @@ app.post('/tasks', (req, res) => {
         taskList = [factory.getTask(), ...taskList];
         res.status(200).json(factory.getTask());
     } catch (err) {
-        res.json({error: err})
+        res.status(500).json({error: err})
     }
 });
 
